@@ -1,6 +1,7 @@
 
 import cv2
 import matplotlib.pyplot as plt
+import math
 import numpy as np
 
 
@@ -35,10 +36,30 @@ def imgToBinaryGreyScale(img):
     return thresh
 
 
+def imgBinaryVerticalHist(img):
+    height, width = img.shape
+    hist = [0] * height
+
+    s = 0
+    while s < width * height:
+        hist[math.floor(s/width)] += 1 - img.item(s) / 255
+        print(img.item(s) / 255)
+        s += 1
+
+    return hist
+
+
+def imgBinaryHorizontalHist(img):
+    pass
+
+
 def showImage(image):
     try:
         img = cv2.imread(image)
-        cv2.imshow(image, imgToBinaryGreyScale(img))
+        binary = imgToBinaryGreyScale(img)
+        hist = imgBinaryVerticalHist(binary)
+        print(hist)
+        cv2.imshow(image, binary)
     except cv2.error:
         print("Image file not found!")
 
@@ -52,7 +73,7 @@ def main(image):
 
 
 if __name__ == '__main__':
-    image = "lena.png"  # sys.argv[1]
+    image = "../images/portee_01.png"  # sys.argv[1]
     main(image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
