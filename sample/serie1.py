@@ -1,7 +1,7 @@
 
 import cv2
 import matplotlib.pyplot as plt
-import sys
+import numpy as np
 
 
 def histogram(image):
@@ -29,11 +29,16 @@ def histogram(image):
     plt.show()
 
 
+def imgToBinaryGreyScale(img):
+    img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)  # convert to grayscale
+    ret, thresh = cv2.threshold(img_gray, 127, 255, cv2.THRESH_BINARY)
+    return thresh
+
+
 def showImage(image):
     try:
         img = cv2.imread(image)
-        # im_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY) #convert to grayscale
-        cv2.imshow(image, img)
+        cv2.imshow(image, imgToBinaryGreyScale(img))
     except cv2.error:
         print("Image file not found!")
 
@@ -43,7 +48,7 @@ def showImage(image):
 
 def main(image):
     showImage(image)  # shows A SINGLE image in grayscale exercise 1
-    histogram(image)  # generates color histogram for image exercise 2
+    # histogram(image)  # generates color histogram for image exercise 2
 
 
 if __name__ == '__main__':
