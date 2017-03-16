@@ -5,30 +5,6 @@ import math
 import numpy as np
 
 
-def histogram(image):
-    # initialize histogram infographics
-    plt.xlabel('Color Value [0 - 255]')
-    plt.ylabel('Number of Pixels')
-    plt.title('Color appearances')
-    # initialize image information
-    try:
-        img = cv2.imread(image)
-        # set image type to RGB instead of BGR(default)
-        rgbimg = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    except cv2.error:
-        print("Image file not found!")
-
-    # initialize histogram data using auto-generated (img.ravel()) data
-    color = ('r', 'g', 'b')
-    for i, col in enumerate(color):
-        # generates histogram for each color r g b
-        histr = cv2.calcHist([rgbimg], [i], None, [256], [0, 256])
-        print(i, col)
-        plt.plot(histr, color=col)
-    plt.xlim([0, 256])  # set x axis range
-    plt.grid(True)
-    plt.show()
-
 
 def imgToBinaryGreyScale(img):
     img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)  # convert to grayscale
@@ -49,7 +25,15 @@ def imgBinaryVerticalHist(img):
 
 
 def imgBinaryHorizontalHist(img):
-    pass
+    height, width = img.shape
+    hist = [0] * width
+
+    s = 0
+    while s < width * height:
+        hist[s % width] += 1 - img.item(s) / 255
+        s += 1
+
+    return hist
 
 
 def displayHist(hist, title="histogram"):
@@ -69,7 +53,7 @@ def showImage(image):
     try:
         img = cv2.imread(image)
         binary = imgToBinaryGreyScale(img)
-        hist = imgBinaryVerticalHist(binary)
+        hist = imgBinaryHorizontalHist(binary)
         displayHist(hist, "vertical histogram")
         cv2.imshow(image, binary)
     except cv2.error:
@@ -85,7 +69,7 @@ def main(image):
 
 
 if __name__ == '__main__':
-    image = "../images/portee_01.png"  # sys.argv[1]
+    image = "../images/partition.png"  # sys.argv[1]
     main(image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
