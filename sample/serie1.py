@@ -11,7 +11,7 @@ def histogram(image):
     plt.title('Color appearances')
     # initialize image information
     try:
-        img = cv2.imread(image[0])
+        img = cv2.imread(image)
         # set image type to RGB instead of BGR(default)
         rgbimg = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     except cv2.error:
@@ -31,9 +31,9 @@ def histogram(image):
 
 def showImage(image):
     try:
-        img = cv2.imread(image[0])
+        img = cv2.imread(image)
         # im_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY) #convert to grayscale
-        cv2.imshow(image[0], img)
+        cv2.imshow(image, img)
     except cv2.error:
         print("Image file not found!")
 
@@ -41,13 +41,13 @@ def showImage(image):
     cv2.destroyAllWindows()
 
 
-def main(images):
-    showImage(images) # shows A SINGLE image in grayscale exercise 1
-    histogram(images)  # generates color histogram for image exercise 2
+def main(image):
+    showImage(image)  # shows A SINGLE image in grayscale exercise 1
+    histogram(image)  # generates color histogram for image exercise 2
 
 
 if __name__ == '__main__':
-    images = sys.argv[1:]
-    main(images)
+    image = "lena.png"  # sys.argv[1]
+    main(image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
