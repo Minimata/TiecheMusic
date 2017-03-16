@@ -43,7 +43,6 @@ def imgBinaryVerticalHist(img):
     s = 0
     while s < width * height:
         hist[math.floor(s/width)] += 1 - img.item(s) / 255
-        print(img.item(s) / 255)
         s += 1
 
     return hist
@@ -53,12 +52,25 @@ def imgBinaryHorizontalHist(img):
     pass
 
 
+def displayHist(hist, title="histogram"):
+    plt.xlabel('raw / column')
+    plt.ylabel('Number of Pixels')
+    plt.title(title)
+
+    plt.plot(hist)
+
+    plt.xlim([0, len(hist)])  # set x axis range
+    plt.grid(True)
+    plt.show()
+
+
+
 def showImage(image):
     try:
         img = cv2.imread(image)
         binary = imgToBinaryGreyScale(img)
         hist = imgBinaryVerticalHist(binary)
-        print(hist)
+        displayHist(hist, "vertical histogram")
         cv2.imshow(image, binary)
     except cv2.error:
         print("Image file not found!")
