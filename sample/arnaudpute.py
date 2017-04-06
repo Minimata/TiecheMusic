@@ -47,13 +47,28 @@ def displayHist(hist, title="histogram"):
     plt.grid(True)
     plt.show()
 
+def cropPartiton(hist,img):
+    lines = []
+    for index,val in enumerate(hist):
+        if val > 600:
+            lines.append(index)
+
+    width, height = img.shape[:2]
+    wi = 170
+    for i in range(1, 10):
+        img_porte = img[wi*i:(wi*i+100), 60:(width-400)]
+        cv2.imshow("img_crop", img_porte)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+
 
 
 def showImage(image):
     try:
         img = cv2.imread(image)
         binary = imgToBinaryGreyScale(img)
-        hist = imgBinaryHorizontalHist(binary)
+        hist = imgBinaryVerticalHist(binary)
         displayHist(hist, "vertical histogram")
         cv2.imshow(image, binary)
     except cv2.error:
@@ -64,8 +79,13 @@ def showImage(image):
 
 
 def main(image):
-    showImage(image)  # shows A SINGLE image in grayscale exercise 1
+    #showImage(image)  # shows A SINGLE image in grayscale exercise 1
     # histogram(image)  # generates color histogram for image exercise 2
+    img = cv2.imread(image)
+    binary = imgToBinaryGreyScale(img)
+    hist = imgBinaryVerticalHist(binary)
+    cropPartiton(hist,img)
+
 
 
 if __name__ == '__main__':
