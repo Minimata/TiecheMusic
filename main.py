@@ -88,16 +88,28 @@ def show_image(image):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+def histogramm_process(binary):
+    hist = img_binary_vertical_hist(binary)
+    crop_sheet_in_scope(hist, binary)
 
-def main(image):
+
+def morpho_process(binary):
+
+    
+
+def main():
+    image = "images/partition.png"  # sys.argv[1]
     img = cv2.imread(image)
     binary = img_to_binary_grey_scale(img)
-    hist = img_binary_vertical_hist(binary)
-    crop_sheet_in_scope(hist, img)
+
+    #choose the process
+    histogramm_process(binary)
+
+    #morpho_process(binary)
+
 
 
 if __name__ == '__main__':
-    image = "images/partition.png"  # sys.argv[1]
-    main(image)
+    main()
     cv2.waitKey(0)
     cv2.destroyAllWindows()
