@@ -46,17 +46,31 @@ def display_hist(hist, title="histogram"):
     plt.show()
 
 
-def crop_partition(hist, img):
+def crop_sheet_in_scope(hist, img):
     lines = []
     for index, val in enumerate(hist):
         if val > 600:
             lines.append(index)
 
+    number_scope = 0
+    scope_first_line = []
+    for i, line in enumerate(lines):
+        if i % 5 == 0:
+            number_scope += 1
+            scope_first_line.append(line)
+
+    size_scope = int(abs(lines[0] - lines[4]))
+    offset_scope = int(abs(math.ceil(lines[4] - lines[5]) / 4))
     width, height = img.shape[:2]
-    wi = 170
-    for i in range(1, 10):
-        img_porte = img[wi * i:(wi * i + 100), 60:(width - 400)]
-        cv2.imshow("img_crop", img_porte)
+
+    for i in range(0, number_scope):
+
+        x = scope_first_line[i] - offset_scope
+        h_x = size_scope + 2 * offset_scope
+
+        img_scope = img[x:x + h_x, 0:width]
+
+        cv2.imshow("img_crop", img_scope)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
@@ -74,7 +88,7 @@ def extract_notes(binary_image):
     # showImage(erosion)
 
 
-def showImage(image):
+def show_image(image):
     try:
         img = cv2.imread(image)
         binary = img_to_binary_grey_scale(img)
@@ -88,20 +102,26 @@ def showImage(image):
     cv2.destroyAllWindows()
 
 
-def main(image):
-    #showImage(image)  # shows A SINGLE image in grayscale exercise 1
-    # histogram(image)  # generates color histogram for image exercise 2
-    img = cv2.imread(image)
-    cv2.imshow('originale', img)
-    binary = img_to_binary_grey_scale(img)
+def histogramm_process(binary):
     hist = img_binary_vertical_hist(binary)
-    # crop_partition(hist, img)
-    extract_notes(binary)
+    crop_sheet_in_scope(hist, binary)
+
+
+def morpho_process(binary):
+    pass
+
+
+def main():
+    image = "images/partition.png"  # sys.argv[1]
+    img = cv2.imread(image)
+    binary = img_to_binary_grey_scale(img)
+    #choose the process
+    histogramm_process(binary)
+
+    #morpho_process(binary)
 
 
 if __name__ == '__main__':
-    image = "images/partition.png"  # sys.argv[1]
-    main(image)
-    print('the end waiting for key interrupt...')
+    main()
     cv2.waitKey(0)
     cv2.destroyAllWindows()
