@@ -76,16 +76,54 @@ def crop_sheet_in_scope(hist, img):
 
 
 def extract_notes(binary_image):
+    # cv2.imshow('originale', binary_image)
     image_to_erode = cv2.bitwise_not(binary_image)
     kernel = np.ones((2, 2), np.uint8)
     erosion = cv2.erode(image_to_erode, kernel, iterations=3)
-    # erosion = cv2.erode(image_to_erode, kernel, iterations=1)
-    cv2.imshow('Erosion', erosion)
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-    dilatation = cv2.dilate(erosion, kernel, iterations=3)
-    cv2.imshow('Dilatation', dilatation)
-    # showImage(erosion)
+    dilatation = cv2.dilate(erosion, kernel, iterations=7)
+    extracted_notes_image = cv2.bitwise_not(dilatation)
+    # cv2.imshow('Morpho result', extracted_notes_image)
+
+    # Setup SimpleBlobDetector parameters.
+    params = cv2.SimpleBlobDetector_Params()
+
+    # Change thresholds
+    params.minThreshold = 10
+    params.maxThreshold = 200
+
+    # Filter by Area.
+    params.filterByArea = True
+    params.minArea = 90
+
+    # Filter by Circularity
+    params.filterByCircularity = True
+    params.minCircularity = 0.8
+
+    # Filter by Convexity
+    # params.filterByConvexity = True
+    # params.minConvexity = 0.87
+
+    # Filter by Inertia
+    params.filterByInertia = True
+    params.minInertiaRatio = 0.6
+
+    # Set up the detector with default parameters.
+    detector = cv2.SimpleBlobDetector_create(params)
+
+    # Detect blobs.
+    # keypoints = detector.detect(binary_image)
+    keypoints = detector.detect(extracted_notes_image)
+
+    # Draw detected blobs as red circles.
+    # cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS ensures the size of the circle corresponds to the size of blob
+    im_with_keypoints = cv2.drawKeypoints(
+        extracted_notes_image, keypoints,
+        np.array([]), (0, 0, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
+    # Show keypoints
+    cv2.imshow("Detected notes", im_with_keypoints)
+    notes_positions = [point.pt for point in keypoints]
+    return notes_positions
 
 
 def show_image(image):
@@ -108,7 +146,7 @@ def histogramm_process(binary):
 
 
 def morpho_process(binary):
-    pass
+    extract_notes(binary)
 
 
 def main():
@@ -116,9 +154,8 @@ def main():
     img = cv2.imread(image)
     binary = img_to_binary_grey_scale(img)
     #choose the process
-    histogramm_process(binary)
-
-    #morpho_process(binary)
+    #histogramm_process(binary)
+    morpho_process(binary)
 
 
 if __name__ == '__main__':
