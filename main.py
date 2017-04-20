@@ -85,7 +85,7 @@ def main(image):
 
 
 if __name__ == '__main__':
-    image = "../images/partition.png"  # sys.argv[1]
+    image = "images/partition.png"  # sys.argv[1]
     main(image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
