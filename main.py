@@ -114,17 +114,11 @@ def show_image(image):
 
 def crop_sheet_in_scope(img):
     hist = img_binary_vertical_hist(img)
-    lines = []
-    for index, val in enumerate(hist):
-        if val > 600:
-            lines.append(index)
 
-    number_scope = 0
-    scope_first_line = []
-    for i, line in enumerate(lines):
-        if i % 5 == 0:
-            number_scope += 1
-            scope_first_line.append(line)
+    lines = [index for index, val in enumerate(hist) if val > 600]
+
+    scope_first_line = list(lines[::5])
+    number_scope = len(scope_first_line)
 
     size_scope = int(abs(lines[0] - lines[4]))
     offset_scope = int(abs(math.ceil(lines[4] - lines[5]) / 6))
@@ -154,17 +148,17 @@ def crop_line_in_note(line):
     falling_edge_list = []
     for index, val in enumerate(hist_reduced):
         try:
-            if hist_reduced[index + 1][1] > 5.0 and val[1] == 5.0 and rising_edge:
+            if hist_reduced[index + 1][1] > 5 and val[1] == 5 and rising_edge:
                 rising_edge_list.append(val[0])
                 rising_edge = False
-            elif val[1] > 5.0 and hist_reduced[index + 1][1] == 5.0 and not rising_edge:
+            elif val[1] > 5 and hist_reduced[index + 1][1] == 5 and not rising_edge:
                 falling_edge_list.append(val[0])
                 rising_edge = True
         except IndexError:
             pass
 
     note_list = []
-    for i in range(0, len(rising_edge_list)):
+    for i in enumerate(rising_edge_list):
         distance = falling_edge_list[i] - rising_edge_list[i]
         if distance < 8.0:
             middle_top = rising_edge_list[i]+ math.ceil(distance/2.0)
@@ -191,19 +185,19 @@ def detect_note(note_list):
                 print("SOL 5", end=" ")
             elif note == lines[0]:
                 print("FA 5", end=" ")
-            elif note > lines[0] and note < lines[1]:
+            elif lines[0] < note < lines[1]:
                 print("MI 5", end=" ")
             elif note == lines[1]:
                 print("RE 5", end=" ")
-            elif note > lines[1] and note < lines[2]:
+            elif lines[1] < note < lines[2]:
                 print("DO 5", end=" ")
             elif note == lines[2]:
                 print("SI 4", end=" ")
-            elif note > lines[2] and note < lines[3]:
+            elif lines[2] < note < lines[3]:
                 print("LA 4", end=" ")
             elif note == lines[3]:
                 print("SOL 4", end=" ")
-            elif note > lines[3] and note < lines[4]:
+            elif lines[3] < note < lines[4]:
                 print("FA 4", end=" ")
             elif note == lines[4]:
                 print("MI 4", end=" ")
