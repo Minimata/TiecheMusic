@@ -140,7 +140,7 @@ def crop_line_in_note(line):
     hist = img_binary_horizontal_hist(line)
     hist_reduced = []
     for index, val in enumerate(hist):
-        if val >= 5 and val <= 15:
+        if 5 >= val <= 15:
             hist_reduced.append((index,val))
 
     rising_edge = True
