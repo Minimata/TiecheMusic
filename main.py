@@ -5,7 +5,7 @@ import numpy as np
 import sys
 
 
-def img_to_binary_grey_scale(img):
+def img_to_binary_grey_scale(img, threshold):
     img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)  # convert to grayscale
     ret, thresh = cv2.threshold(img_gray, 20, 255, cv2.THRESH_BINARY)
     return thresh
@@ -218,16 +218,23 @@ def histogramm_process(binary):
 
 
 def morpho_process(binary):
-    extract_notes(binary)
+    notes_positions = extract_notes(binary)
+    histo = img_binary_vertical_hist(binary)
+    height, width = binary.shape
+    lines_y = [i for i, count in enumerate(histo) if count > 0.5 * width]
+    n = 5
+    list_sheets = [lines_y[k::k+n] for k in range(0,len(lines_y),n)]
+    print(len(list_sheets))
 
 
 def main():
     image = "images/partition.png"  # sys.argv[1]
     img = cv2.imread(image)
-    binary = img_to_binary_grey_scale(img)
+    binary_histo = img_to_binary_grey_scale(img, 20)
+    binary_morpho = img_to_binary_grey_scale(img, 127)
     #choose the process
-    histogramm_process(binary)
-    #morpho_process(binary)
+    # histogramm_process(binary_histo)
+    morpho_process(binary_morpho)
 
 
 if __name__ == '__main__':
