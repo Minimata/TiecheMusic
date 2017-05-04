@@ -141,7 +141,7 @@ def crop_line_in_note(line):
     hist_reduced = []
     for index, val in enumerate(hist):
         if 5 <= val <= 15:
-            hist_reduced.append((index,val))
+            hist_reduced.append((index, val))
 
     rising_edge = True
     rising_edge_list = []
@@ -151,7 +151,8 @@ def crop_line_in_note(line):
             if hist_reduced[index + 1][1] > 5 and val[1] == 5 and rising_edge:
                 rising_edge_list.append(val[0])
                 rising_edge = False
-            elif val[1] > 5 and hist_reduced[index + 1][1] == 5 and not rising_edge:
+            elif val[1] > 5 and hist_reduced[index +
+                                             1][1] == 5 and not rising_edge:
                 falling_edge_list.append(val[0])
                 rising_edge = True
         except IndexError:
@@ -161,7 +162,7 @@ def crop_line_in_note(line):
     for i, val in enumerate(rising_edge_list):
         distance = falling_edge_list[i] - rising_edge_list[i]
         if distance < 8.0:
-            middle_top = rising_edge_list[i]+ math.ceil(distance/2.0)
+            middle_top = rising_edge_list[i] + math.ceil(distance / 2.0)
             x = middle_top - distance
             h_x = middle_top + distance
             note_list.append(line[0:height, x:h_x])
@@ -177,7 +178,12 @@ def detect_note(note_list):
         for index, val in enumerate(hist):
             if val > 10:
                 lines.append(index)
-            if val >= 3 and hist[index-1] >= 3 and hist[index+1] >= 3 and hist[index-2] >= 3 and hist[index+2] >= 3:
+            if val >= 3 and hist[index -
+                                 1] >= 3 and hist[index +
+                                                  1] >= 3 and hist[index -
+                                                                   2] >= 3 and hist[index
+                                                                                    +
+                                                                                    2] >= 3:
                 note = index
 
         try:
@@ -208,7 +214,6 @@ def detect_note(note_list):
         print("\t", end=" ")
 
 
-
 def histogramm_process(binary):
     scope_list = crop_sheet_in_scope(binary)
     for line in scope_list:
@@ -223,8 +228,10 @@ def morpho_process(binary):
     height, width = binary.shape
     lines_y = [i for i, count in enumerate(histo) if count > 0.5 * width]
     n = 5
-    list_sheets = [lines_y[k::k+n] for k in range(0,len(lines_y),n)]
+    list_sheets = [lines_y[k::k + n] for k in range(0, len(lines_y), n)]
     print(len(list_sheets))
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
 def main():
@@ -233,11 +240,9 @@ def main():
     binary_histo = img_to_binary_grey_scale(img, 20)
     binary_morpho = img_to_binary_grey_scale(img, 127)
     #choose the process
-    # histogramm_process(binary_histo)
-    morpho_process(binary_morpho)
+    histogramm_process(binary_histo)
+    # morpho_process(binary_morpho)
 
 
 if __name__ == '__main__':
     main()
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
