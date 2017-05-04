@@ -140,7 +140,7 @@ def crop_line_in_note(line):
     hist = img_binary_horizontal_hist(line)
     hist_reduced = []
     for index, val in enumerate(hist):
-        if 5 >= val <= 15:
+        if 5 <= val <= 15:
             hist_reduced.append((index,val))
 
     rising_edge = True
@@ -158,7 +158,7 @@ def crop_line_in_note(line):
             pass
 
     note_list = []
-    for i in enumerate(rising_edge_list):
+    for i, val in enumerate(rising_edge_list):
         distance = falling_edge_list[i] - rising_edge_list[i]
         if distance < 8.0:
             middle_top = rising_edge_list[i]+ math.ceil(distance/2.0)
@@ -222,7 +222,7 @@ def morpho_process(binary):
 
 
 def main():
-    image = "images/partition.png"  # sys.argv[1]
+    image = "images/partition.png"
     img = cv2.imread(image)
     binary = img_to_binary_grey_scale(img)
     #choose the process
