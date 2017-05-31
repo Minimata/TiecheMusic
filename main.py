@@ -4,11 +4,48 @@ import math
 import numpy as np
 import sys
 from operator import itemgetter
+import argparse
 
 
 class Sheet:
     def __init__(self, line_list):
-        self.lines = line_list
+        self.lines = sorted(line_list)
+        self.highest_line = max(self.lines)
+        self.lowest_line = min(self.lines)
+
+    def __contains__(self, note):
+        _, y = note
+        return self.lowest_line <= y <= self.highest_line
+
+    def get_note_name(self, note):
+        if note not in self:
+            return None
+        _, y = note
+        try:
+            if y < self.lines[0]:
+                return "Re 4"
+            elif y == self.lines[0]:
+                return "Mi 4"
+            elif self.lines[0] < y < self.lines[1]:
+                return "Fa 4"
+            elif y == self.lines[1]:
+                return "Sol 4"
+            elif self.lines[1] < y < self.lines[2]:
+                return "La 4"
+            elif y == self.lines[2]:
+                return "Si 5"
+            elif self.lines[2] < y < self.lines[3]:
+                return "Do 5"
+            elif y == self.lines[3]:
+                return "Re 5"
+            elif self.lines[3] < y < self.lines[4]:
+                return "Mi 5"
+            elif y == self.lines[4]:
+                return "Fa 5"
+            elif y < self.lines[4]:
+                return "Sol 5"
+        except IndexError:
+            return None
 
 
 def img_to_binary_grey_scale(img, threshold):
@@ -54,11 +91,12 @@ def show_hist(hist, title="histogram"):
 
 
 def extract_notes(binary_image):
-    # cv2.imshow('originale', binary_image)
+    cv2.imshow('originale', binary_image)
     image_to_erode = cv2.bitwise_not(binary_image)
+    output = binary_image.copy()
     kernel = np.ones((2, 2), np.uint8)
     erosion = cv2.erode(image_to_erode, kernel, iterations=3)
-    dilatation = cv2.dilate(erosion, kernel, iterations=7)
+    dilatation = cv2.dilate(erosion, kernel, iterations=9)
     extracted_notes_image = cv2.bitwise_not(dilatation)
     # cv2.imshow('Morpho result', extracted_notes_image)
 
@@ -71,15 +109,15 @@ def extract_notes(binary_image):
 
     # Filter by Area.
     params.filterByArea = True
-    params.minArea = 90
+    params.minArea = 1
 
     # Filter by Circularity
     params.filterByCircularity = True
     params.minCircularity = 0.8
 
     # Filter by Convexity
-    # params.filterByConvexity = True
-    # params.minConvexity = 0.87
+    params.filterByConvexity = True
+    params.minConvexity = 0.87
 
     # Filter by Inertia
     params.filterByInertia = True
@@ -99,7 +137,7 @@ def extract_notes(binary_image):
         np.array([]), (0, 0, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
     # Show keypoints
-    # cv2.imshow("Detected notes", im_with_keypoints)
+    cv2.imshow("Detected notes", im_with_keypoints)
     notes_positions = [point.pt for point in keypoints]
     return notes_positions
 
@@ -230,30 +268,55 @@ def histogramm_process(binary):
 
 def morpho_process(binary):
     notes_positions = extract_notes(binary)
-    print(notes_positions)
+    print("number of notes")
+    print(len(notes_positions))
+    # print(notes_positions)
     histo = img_binary_vertical_hist(binary)
     height, width = binary.shape
     lines_y = [i for i, count in enumerate(histo) if count > 0.5 * width]
     n = 5
     list_sheets = [lines_y[k:k + n] for k in range(0, len(lines_y), n)]
     sheets = [Sheet(l) for l in list_sheets]
+    print("sheets with their lines positions")
+    print(list_sheets)
+    # print("sheet 1")
+    # print(sheets[0].lines)
     print("sorted note positions")
     notes_positions.sort(key=itemgetter(1, 0))
     print(notes_positions)
-    # print(len(list_sheets))
-    # cv2.waitKey(0)
-    # cv2.destroyAllWindows()
+    note_names = []
+    for note in notes_positions:
+        for sh in sheets:
+            if note in sh:
+                note_names.append(sh.get_note_name(note))
+    print("note names")
+    print(note_names)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
 
 
-def main():
-    image = "images/partition.png"
-    img = cv2.imread(image)
+def main(args):
+    # image = "images/partition.png"
+    img = cv2.imread(args.file)
     binary_histo = img_to_binary_grey_scale(img, 20)
     binary_morpho = img_to_binary_grey_scale(img, 127)
     #choose the process
-    # histogramm_process(binary_histo)
-    morpho_process(binary_morpho)
+    if not args.feature_detector:
+        histogramm_process(binary_histo)
+    else:
+        morpho_process(binary_morpho)
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--feature-detector",
+        help="use a second experimental method using a OpenCV's feature detector",
+        action="store_true")
+    parser.add_argument(
+        "--file",
+        help="input image to analyse",
+        default="images/partition.png")
+
+    args = parser.parse_args()
+    main(args)
