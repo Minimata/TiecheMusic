@@ -3,6 +3,12 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 import sys
+from operator import itemgetter
+
+
+class Sheet:
+    def __init__(self, line_list):
+        self.lines = line_list
 
 
 def img_to_binary_grey_scale(img, threshold):
@@ -93,7 +99,7 @@ def extract_notes(binary_image):
         np.array([]), (0, 0, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
 
     # Show keypoints
-    cv2.imshow("Detected notes", im_with_keypoints)
+    # cv2.imshow("Detected notes", im_with_keypoints)
     notes_positions = [point.pt for point in keypoints]
     return notes_positions
 
@@ -224,14 +230,19 @@ def histogramm_process(binary):
 
 def morpho_process(binary):
     notes_positions = extract_notes(binary)
+    print(notes_positions)
     histo = img_binary_vertical_hist(binary)
     height, width = binary.shape
     lines_y = [i for i, count in enumerate(histo) if count > 0.5 * width]
     n = 5
-    list_sheets = [lines_y[k::k + n] for k in range(0, len(lines_y), n)]
-    print(len(list_sheets))
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    list_sheets = [lines_y[k:k + n] for k in range(0, len(lines_y), n)]
+    sheets = [Sheet(l) for l in list_sheets]
+    print("sorted note positions")
+    notes_positions.sort(key=itemgetter(1, 0))
+    print(notes_positions)
+    # print(len(list_sheets))
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
 
 def main():
@@ -240,8 +251,8 @@ def main():
     binary_histo = img_to_binary_grey_scale(img, 20)
     binary_morpho = img_to_binary_grey_scale(img, 127)
     #choose the process
-    histogramm_process(binary_histo)
-    # morpho_process(binary_morpho)
+    # histogramm_process(binary_histo)
+    morpho_process(binary_morpho)
 
 
 if __name__ == '__main__':
